@@ -16,7 +16,9 @@ namespace Calculator
     /// </summary>
     public partial class MainWindow : Window
     {
-        double lastNumber, result;
+        double lastNumber,
+            result;
+        SelectedOperator selectedOperator;
 
         public MainWindow()
         {
@@ -26,47 +28,135 @@ namespace Calculator
             negativeButton.Click += NegativeButton_Click;
             percentageButton.Click += PercentageButton_Click;
             equalButton.Click += EqualButton_Click;
+            dotButton.Click += DotButton_Click;
         }
 
-        private void EqualButton_Click ( object sender , RoutedEventArgs e )
+        private void DotButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (resultLabel.Content.ToString().Contains("."))
             {
-            throw new NotImplementedException ( );
+                //do nothing
             }
-
-        private void PercentageButton_Click ( object sender , RoutedEventArgs e )
-            {
-            if ( double.TryParse ( resultLabel.Content.ToString ( ) , out lastNumber ) )
-                {
-                lastNumber = lastNumber /100;
-                resultLabel.Content = lastNumber.ToString ( );
-                }
-            }
-
-        private void NegativeButton_Click ( object sender, RoutedEventArgs e )
-            {
-            // double.TryParse returns true if we can convert a string to a number.
-            if ( double.TryParse ( resultLabel.Content.ToString ( ), out lastNumber ) )
-                { lastNumber = lastNumber * -1;  
-                resultLabel.Content = lastNumber.ToString(); }
-            }
-
-        private void ACButton_Click ( object sender, RoutedEventArgs e )
-            {
-            resultLabel.Content = "0";
-            }
-
-        private void sevenButton_Click ( object sender, RoutedEventArgs e )
-            {
-            // Because resultLabel.Content is by default an object, we need to convert it to a string first.
-            if ( resultLabel.Content.ToString() == "0")
-                {
-                resultLabel.Content = "7";
-                }
             else
+            {
+                resultLabel.Content = $"{resultLabel.Content}.";
+            }
+        }
+
+        private void EqualButton_Click(object sender, RoutedEventArgs e)
+        {
+            double newNumber;
+
+            if (double.TryParse(resultLabel.Content.ToString(), out newNumber))
+            {
+                switch (selectedOperator)
                 {
-                resultLabel.Content = $"{resultLabel.Content}7";
+                    case SelectedOperator.Addition:
+                        result = SimpleMath.Add(lastNumber, newNumber);
+                        break;
+                    case SelectedOperator.Subtraction:
+                        result = SimpleMath.Subtract(lastNumber, newNumber);
+                        break;
+                    case SelectedOperator.Multiplication:
+                        result = SimpleMath.Multiply(lastNumber, newNumber);
+                        break;
+                    case SelectedOperator.Division:
+                        result = SimpleMath.Divide(lastNumber, newNumber);
+                        break;
                 }
             }
-
+            resultLabel.Content = result.ToString();
         }
+
+        private void PercentageButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Because resultLabel.Content is by default an object, we need to convert it to a string first.
+            // double.TryParse returns true if we can convert a string to a number.
+            if (double.TryParse(resultLabel.Content.ToString(), out lastNumber))
+            {
+                lastNumber = lastNumber / 100;
+                resultLabel.Content = lastNumber.ToString();
+            }
+        }
+
+        private void NegativeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (double.TryParse(resultLabel.Content.ToString(), out lastNumber))
+            {
+                lastNumber = lastNumber * -1;
+                resultLabel.Content = lastNumber.ToString();
+            }
+        }
+
+        private void ACButton_Click(object sender, RoutedEventArgs e)
+        {
+            resultLabel.Content = "0";
+            lastNumber = 0;
+        }
+
+        private void OperationButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (double.TryParse(resultLabel.Content.ToString(), out lastNumber))
+            {
+                resultLabel.Content = "0";
+            }
+
+            if (sender == plusButton)
+                selectedOperator = SelectedOperator.Addition;
+
+            if (sender == minusButton)
+                selectedOperator = SelectedOperator.Subtraction;
+
+            if (sender == multiplyButton)
+                selectedOperator = SelectedOperator.Multiplication;
+
+            if (sender == divideButton)
+                selectedOperator = SelectedOperator.Division;
+        }
+
+        private void NumberButton_Click(object sender, RoutedEventArgs e)
+        {
+            int selectedValue = int.Parse((sender as Button).Content.ToString());
+
+            if (resultLabel.Content.ToString() == "0")
+            {
+                resultLabel.Content = $"{selectedValue}";
+            }
+            else
+            {
+                resultLabel.Content = $"{resultLabel.Content}{selectedValue}";
+            }
+        }
+    }
+
+    public enum SelectedOperator
+    {
+        Addition,
+        Subtraction,
+        Multiplication,
+        Division,
+    }
+
+    public class SimpleMath
+    {
+        public static double Add(double n1, double n2)
+        {
+            return n1 + n2;
+        }
+
+        public static double Subtract(double n1, double n2)
+        {
+            return n1 - n2;
+        }
+
+        public static double Multiply(double n1, double n2)
+        {
+            return n1 * n2;
+        }
+
+        public static double Divide(double n1, double n2)
+        {
+            return n1 / n2;
+        }
+    }
 }
