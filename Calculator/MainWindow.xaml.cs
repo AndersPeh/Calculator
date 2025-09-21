@@ -18,7 +18,7 @@ namespace Calculator
     {
         double lastNumber,
             result;
-        SelectedOperator selectedOperator;
+        SelectedOperator selectedOperator = SelectedOperator.None;
 
         public MainWindow()
         {
@@ -70,12 +70,16 @@ namespace Calculator
 
         private void PercentageButton_Click(object sender, RoutedEventArgs e)
         {
+            double tempNumber;
+
             // Because resultLabel.Content is by default an object, we need to convert it to a string first.
             // double.TryParse returns true if we can convert a string to a number.
-            if (double.TryParse(resultLabel.Content.ToString(), out lastNumber))
+            if (double.TryParse(resultLabel.Content.ToString(), out tempNumber))
             {
-                lastNumber = lastNumber / 100;
-                resultLabel.Content = lastNumber.ToString();
+                tempNumber = tempNumber / 100;
+                if (lastNumber != 0)
+                    tempNumber *= lastNumber;
+                resultLabel.Content = tempNumber.ToString();
             }
         }
 
@@ -92,6 +96,7 @@ namespace Calculator
         {
             resultLabel.Content = "0";
             lastNumber = 0;
+            result = 0;
         }
 
         private void OperationButton_Click(object sender, RoutedEventArgs e)
